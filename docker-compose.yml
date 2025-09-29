@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  dsa-virtual-lab:
+    build: .
+    container_name: dsa-virtual-lab
+    ports:
+      - "15012:15012"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:15012/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dsa-virtual-lab.rule=Host(`aldoy.ykd.dev`)"
+      - "traefik.http.routers.dsa-virtual-lab.tls=true"
+      - "traefik.http.routers.dsa-virtual-lab.tls.certresolver=letsencrypt"
+      - "traefik.http.services.dsa-virtual-lab.loadbalancer.server.port=15012"

@@ -67,6 +67,8 @@
   flex-direction: column;
   gap: 0.5rem;
   align-items: center;
+  min-height: 60px;
+  justify-content: space-between;
 }
 
 .control-label {
@@ -122,6 +124,34 @@
 .size-slider:disabled::-webkit-slider-thumb {
   cursor: not-allowed;
   transform: none;
+}
+
+.speed-slider::-webkit-slider-thumb {
+  background: #4ecdc4;
+}
+
+.speed-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 4px 12px rgba(78, 205, 196, 0.4);
+}
+
+.speed-slider::-moz-range-thumb {
+  background: #4ecdc4;
+}
+
+.speed-value {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  line-height: 1;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.control-spacer {
+  height: 12px;
+  margin-top: 0.25rem;
 }
 
 .sort-button {

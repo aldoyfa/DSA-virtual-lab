@@ -30,7 +30,7 @@ export const startSorting = async (algorithm, array, speed, dispatch) => {
   }
 
   try {
-    await sortFunction(array, dispatch, Math.max(50, speed))
+    await sortFunction(array, dispatch, speed)
     
     // Show final sorted state
     const allIndices = Array.from({ length: array.length }, (_, index) => index)

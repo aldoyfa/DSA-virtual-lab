@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { setAlgorithm } from '../../store/slices/algorithmSlice'
 import { generateRandomArray } from '../../store/slices/arraySlice'
-import { resetVisualization, setIsRunning } from '../../store/slices/visualizationSlice'
+import { resetVisualization, setIsRunning, setSpeed } from '../../store/slices/visualizationSlice'
 import { startSorting } from '../../algorithms'
 import './Toolbar.css'
 
@@ -11,6 +11,7 @@ const Toolbar = () => {
   const array = useSelector(state => state.array.data)
   const selectedAlgorithm = useSelector(state => state.algorithm.selected)
   const isRunning = useSelector(state => state.visualization.isRunning)
+  const speed = useSelector(state => state.visualization.speed)
 
   useEffect(() => {
     // Generate initial array
@@ -38,12 +39,19 @@ const Toolbar = () => {
     }
   }
 
-
+  const handleSpeedChange = (event) => {
+    if (!isRunning) {
+      const sliderValue = parseInt(event.target.value)
+      // Map slider value 1-10001 to speed range 500ms to 0.05ms (for exactly 10000X)
+      // Higher slider value = faster speed (lower ms)
+      const newSpeed = 500 / Math.pow(10, (sliderValue - 1) / 2500)
+      dispatch(setSpeed(newSpeed))
+    }
+  }
 
   const handleSort = () => {
     if (!isRunning && selectedAlgorithm && array.length > 0) {
-      const calculatedSpeed = Math.max(50, 570 - Math.pow(array.length, 2))
-      startSorting(selectedAlgorithm, array, calculatedSpeed, dispatch)
+      startSorting(selectedAlgorithm, array, speed, dispatch)
         .catch(error => {
           console.error('Sort failed:', error)
           dispatch(setIsRunning(false))
@@ -79,7 +87,7 @@ const Toolbar = () => {
 
       <div className="control-group">
         <label className="control-label" style={{ color: buttonStyle.color }}>
-          Array Size & Speed
+          Array Size
         </label>
         <input
           type="range"
@@ -90,6 +98,27 @@ const Toolbar = () => {
           disabled={isRunning}
           onChange={handleSizeChange}
         />
+        <div className="control-spacer"></div>
+      </div>
+
+      <div className="separator" />
+
+      <div className="control-group">
+        <label className="control-label" style={{ color: buttonStyle.color }}>
+          Speed
+        </label>
+        <input
+          type="range"
+          min="1"
+          max="10001"
+          value={Math.log10(500 / speed) * 2500 + 1}
+          className="size-slider speed-slider"
+          disabled={isRunning}
+          onChange={handleSpeedChange}
+        />
+        <span className="speed-value" style={{ color: buttonStyle.color, fontSize: '0.75rem' }}>
+          {(500 / speed).toFixed(1)}X
+        </span>
       </div>
 
       <div className="separator" />

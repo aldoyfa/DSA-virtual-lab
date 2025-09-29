@@ -6,7 +6,7 @@ const initialState = {
   currentSwappers: [],
   currentSorted: [],
   pivot: null,
-  speed: 50,
+  speed: 100,
   animationTimeout: null
 }
 
