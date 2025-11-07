@@ -1,0 +1,142 @@
+:root {
+  --bg-dark: #0b1220;
+  --card: #ffffff;
+  --muted: #9fb9d6;
+  --accent-blue-start: #07a6d6;
+  --accent-blue-end: #023b6b;
+  --accent-coral-start: #ff9b9b;
+  --accent-coral-end: #ff6b6b;
+}
+
+.topic-selector-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, var(--bg-dark), #081424);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.topic-card {
+  width: 760px;
+  max-width: 96%;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    rgba(255, 255, 255, 0.01)
+  );
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(2, 6, 23, 0.6);
+  overflow: hidden;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.topic-content {
+  width: 100%;
+  padding: 8px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.topic-content h1 {
+  margin: 0 0 10px;
+  font-size: 28px;
+  color: #e6eef8;
+  text-align: center;
+}
+
+.topic-content p.lead {
+  margin: 0 0 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.tiles {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  justify-content: center;
+}
+
+.tile {
+  width: 300px;
+  height: 300px;
+  background: var(--card);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.35);
+  transition: transform 0.14s ease, box-shadow 0.14s ease;
+  user-select: none;
+  padding: 18px;
+  text-align: center;
+  color: #0b1220;
+}
+
+.tile:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 22px 40px rgba(2, 6, 23, 0.5);
+}
+
+.tile .bar {
+  width: 80%;
+  height: 10px;
+  border-radius: 6px;
+  margin-bottom: 18px;
+}
+
+.tile .title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.tile .subtitle {
+  font-size: 14px;
+  color: #5b6f86;
+}
+
+.tile.blue .bar {
+  background: linear-gradient(
+    90deg,
+    var(--accent-blue-start),
+    var(--accent-blue-end)
+  );
+}
+
+.tile.coral .bar {
+  background: linear-gradient(
+    90deg,
+    var(--accent-coral-start),
+    var(--accent-coral-end)
+  );
+}
+
+@media (max-width: 760px) {
+  .topic-card {
+    flex-direction: column;
+    padding: 18px;
+  }
+
+  .tiles {
+    flex-direction: column;
+  }
+
+  .tile {
+    width: 100%;
+    height: 180px;
+  }
+}

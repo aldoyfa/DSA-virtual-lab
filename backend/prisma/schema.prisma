@@ -1,0 +1,77 @@
+// Prisma schema for DSA Virtual Lab
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationship with user states
+  userStates UserState[]
+  alphaBetaScores AlphaBetaScore[]
+
+  @@map("users")
+}
+
+model UserState {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String   @default("Untitled Session")
+  
+  // Array data
+  arrayData Int[]
+  arraySize Int      @default(50)
+  
+  // Algorithm selection
+  selectedAlgorithm String?
+  
+  // Visualization settings
+  speed     Int      @default(100)
+  
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("user_states")
+}
+
+model AlphaBetaScore {
+  id              String   @id @default(cuid())
+  userId          String
+  
+  // Tree configuration
+  depth           Int
+  branchingFactor Int
+  treeType        String   // 'random', 'min', or 'max'
+  
+  // Score and result
+  score           Int
+  isCorrect       Boolean
+  
+  // Store tree data for review
+  treeData        Json
+  
+  // Metadata
+  createdAt       DateTime @default(now())
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("alpha_beta_scores")
+}
