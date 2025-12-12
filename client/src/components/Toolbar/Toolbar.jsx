@@ -4,7 +4,7 @@ import { setAlgorithm } from '../../store/slices/algorithmSlice'
 import { generateRandomArray, setArray } from '../../store/slices/arraySlice'
 import { resetVisualization, setIsRunning, setSpeed } from '../../store/slices/visualizationSlice'
 import { startSorting } from '../../algorithms'
-import { useAuth } from '../../context/AuthContext'
+import { useAuth } from '../../contexts/AuthContext'
 import api from '../../services/api'
 import './Toolbar.css'
 

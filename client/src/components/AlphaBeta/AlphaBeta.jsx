@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AlphaBetaTree } from '../../algorithms/alphaBeta';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import api from '../../services/api';
 import AlphaBetaToolbar from './AlphaBetaToolbar';
 import './AlphaBeta.css';

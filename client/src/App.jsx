@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from './contexts/AuthContext';
 import Auth from './components/Auth/Auth';
 import TopicSelector from './components/TopicSelector/TopicSelector';
 import Toolbar from './components/Toolbar/Toolbar';

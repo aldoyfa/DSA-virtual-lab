@@ -20,24 +20,21 @@ ENV VITE_API_URL=$VITE_API_URL
 # Build the application
 RUN npm run build
 
-# Production stage
-FROM node:18-alpine AS production
+# Production stage with nginx
+FROM nginx:alpine
 
-# Install serve package globally for serving static files
-RUN npm install -g serve
+# Copy built application to nginx html directory
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Set working directory
-WORKDIR /app
-
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port
-EXPOSE 15014
+EXPOSE 15012
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:15014/ || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:15012/ || exit 1
 
-# Start the application
-CMD ["serve", "-s", "dist", "-l", "15014"]
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]

@@ -20,8 +20,7 @@ RUN npx prisma generate
 # Copy application code
 COPY src ./src
 
-# Expose port
-EXPOSE 5000
+EXPOSE 15011
 
 # Run migrations and start server
 CMD ["sh", "-c", "npx prisma migrate deploy && node src/server.js"]

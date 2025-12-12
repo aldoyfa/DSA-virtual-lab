@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
+const FRONTEND_PORT = process.env.FRONTEND_PORT || 15012;
+
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
@@ -9,7 +11,7 @@ export default defineConfig({
     outDir: 'dist'
   },
   server: {
-    port: 3000,
+    port: parseInt(FRONTEND_PORT),
     open: true
   }
 })
