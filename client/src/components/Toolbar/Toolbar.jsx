@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useVisualizer } from '../../contexts/VisualizerContext'
 import { setAlgorithm } from '../../store/slices/algorithmSlice'
 import { generateRandomArray, setArray } from '../../store/slices/arraySlice'
 import { resetVisualization, setIsRunning, setSpeed } from '../../store/slices/visualizationSlice'
@@ -8,16 +8,12 @@ import { useAuth } from '../../contexts/AuthContext'
 import api from '../../services/api'
 import './Toolbar.css'
 
-const Toolbar = () => {
-  const dispatch = useDispatch()
+const Toolbar = ({ onChangeTopic }) => {
+  const { state, dispatch } = useVisualizer()
+  const { array, algorithm: selectedAlgorithm, isRunning, speed } = state
   const { user, logout } = useAuth()
-  const array = useSelector(state => state.array.data)
-  const selectedAlgorithm = useSelector(state => state.algorithm.selected)
-  const isRunning = useSelector(state => state.visualization.isRunning)
-  const speed = useSelector(state => state.visualization.speed)
 
   useEffect(() => {
-    // Load saved state on mount
     const loadSavedState = async () => {
       try {
         const response = await api.getLatestState()
@@ -28,53 +24,43 @@ const Toolbar = () => {
           } else {
             dispatch(generateRandomArray(87))
           }
-          if (savedState.algorithm) {
-            dispatch(setAlgorithm(savedState.algorithm))
+          if (savedState.selectedAlgorithm) {
+            dispatch(setAlgorithm(savedState.selectedAlgorithm))
           }
           if (savedState.speed) {
             dispatch(setSpeed(savedState.speed))
           }
         } else {
-          // Generate initial array if no saved state
           dispatch(generateRandomArray(87))
         }
       } catch (error) {
-        console.log('No saved state found, generating new array')
-        // Generate initial array on error
         dispatch(generateRandomArray(87))
       }
     }
-
     loadSavedState()
   }, [dispatch])
 
-  // Auto-save state when array, algorithm, or speed changes
   useEffect(() => {
     if (!isRunning && array.length > 0 && selectedAlgorithm) {
       const saveState = async () => {
         try {
           await api.saveState({
-            algorithm: selectedAlgorithm,
+            selectedAlgorithm,
             arrayData: array,
             arraySize: array.length,
-            speed: speed
+            speed,
           })
-          console.log('State saved successfully')
         } catch (error) {
           console.error('Failed to save state:', error)
         }
       }
-
-      // Debounce the save operation
       const timeoutId = setTimeout(saveState, 1000)
       return () => clearTimeout(timeoutId)
     }
   }, [array, selectedAlgorithm, speed, isRunning])
 
   const handleAlgorithmClick = (algorithm) => {
-    if (!isRunning) {
-      dispatch(setAlgorithm(algorithm))
-    }
+    if (!isRunning) dispatch(setAlgorithm(algorithm))
   }
 
   const handleGenerateArray = () => {
@@ -95,8 +81,6 @@ const Toolbar = () => {
   const handleSpeedChange = (event) => {
     if (!isRunning) {
       const sliderValue = parseInt(event.target.value)
-      // Map slider value 1-10001 to speed range 500ms to 0.05ms (for exactly 10000X)
-      // Higher slider value = faster speed (lower ms)
       const newSpeed = 500 / Math.pow(10, (sliderValue - 1) / 2500)
       dispatch(setSpeed(newSpeed))
     }
@@ -125,26 +109,13 @@ const Toolbar = () => {
     { key: 'bubbleSort', label: 'Bubble Sort' }
   ]
 
-  const handleLogout = async () => {
-    if (!isRunning) {
-      await logout()
-    }
-  }
-
-  const handleChangeTopic = () => {
-    if (!isRunning) {
-      // Just reload the page, App.jsx will handle showing topic selector
-      window.location.reload()
-    }
-  }
-
   return (
     <div className="toolbar">
       <div className="user-info">
         <span className="username">{user?.username || 'Guest'}</span>
         <button
           className="change-topic-button"
-          onClick={handleChangeTopic}
+          onClick={onChangeTopic}
           disabled={isRunning}
           title="Change Topic"
         >
@@ -152,7 +123,7 @@ const Toolbar = () => {
         </button>
         <button
           className="logout-button"
-          onClick={handleLogout}
+          onClick={logout}
           disabled={isRunning}
           title="Logout"
         >

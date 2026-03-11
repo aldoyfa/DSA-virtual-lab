@@ -7,10 +7,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports:
-      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
     restart: unless-stopped
     command: -p ${POSTGRES_PORT}
     healthcheck:
@@ -18,13 +18,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # Backend API
   backend:
     build: ./server
     container_name: dsa-virtual-lab-backend
-    ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}"
     environment:
       - NODE_ENV=${NODE_ENV}
       - PORT=${BACKEND_PORT}
@@ -32,6 +40,8 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - JWT_EXPIRES_IN=${JWT_EXPIRES_IN}
       - FRONTEND_URL=${FRONTEND_URL}
+    networks:
+      - internal
     depends_on:
       postgres:
         condition: service_healthy
@@ -42,8 +52,18 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "0.5"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  # Frontend App
+  # Frontend (nginx reverse proxy + SPA)
   frontend:
     build:
       context: ./client
@@ -52,18 +72,32 @@ services:
     container_name: dsa-virtual-lab-frontend
     ports:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-    environment:
-      - NODE_ENV=${NODE_ENV}
-      - PORT=${FRONTEND_PORT}
+    networks:
+      - internal
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:${FRONTEND_PORT}/"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+          cpus: "0.25"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  internal:
+    driver: bridge
 
 volumes:
   postgres_data:

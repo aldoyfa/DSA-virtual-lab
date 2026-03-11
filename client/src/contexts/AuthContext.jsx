@@ -17,22 +17,18 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
-    
-    if (token && storedUser) {
+
+    if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
         setUser(userData);
         setIsAuthenticated(true);
       } catch (error) {
-        console.error('Failed to parse user data:', error);
-        localStorage.removeItem('token');
         localStorage.removeItem('user');
       }
     }
-    
+
     setLoading(false);
   }, []);
 
@@ -72,7 +68,6 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setUser(null);
       setIsAuthenticated(false);
-      localStorage.removeItem('token');
       localStorage.removeItem('user');
     }
   };

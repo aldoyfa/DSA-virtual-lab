@@ -1,26 +1,35 @@
-# Backend Dockerfile for DSA Virtual Lab API
-FROM node:20-alpine
+# --- Build stage: install deps + generate Prisma client ---
+FROM node:20-alpine AS builder
 
-# Install OpenSSL for Prisma
 RUN apk add --no-cache openssl
 
-# Set working directory
 WORKDIR /app
 
-# Install dependencies
+COPY package*.json ./
+RUN npm install
+
+COPY prisma ./prisma
+RUN npx prisma generate
+
+# --- Production stage: lean runtime image ---
+FROM node:20-alpine
+
+RUN apk add --no-cache openssl wget \
+    && addgroup -S appgroup && adduser -S appuser -G appgroup
+
+WORKDIR /app
+
 COPY package*.json ./
 RUN npm install --omit=dev
 
-# Copy Prisma schema
+# Copy generated Prisma client from builder
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 COPY prisma ./prisma
-
-# Generate Prisma client
-RUN npx prisma generate
-
-# Copy application code
 COPY src ./src
+
+USER appuser
 
 EXPOSE 15011
 
-# Run migrations and start server
 CMD ["sh", "-c", "npx prisma migrate deploy && node src/server.js"]

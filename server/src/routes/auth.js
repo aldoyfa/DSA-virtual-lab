@@ -1,12 +1,11 @@
 import express from 'express';
 import validator from 'validator';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
 import { generateToken } from '../utils/jwt.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 /**
  * @route   POST /api/auth/register
@@ -191,25 +190,11 @@ router.post('/logout', (req, res) => {
  * @desc    Get current user
  * @access  Private
  */
-router.get('/me', authenticate, async (req, res, next) => {
-  try {
-    const user = await prisma.user.findUnique({
-      where: { id: req.user.id },
-      select: {
-        id: true,
-        email: true,
-        username: true,
-        createdAt: true,
-      },
-    });
-
-    res.json({
-      success: true,
-      data: { user },
-    });
-  } catch (error) {
-    next(error);
-  }
+router.get('/me', authenticate, (req, res) => {
+  res.json({
+    success: true,
+    data: { user: req.user },
+  });
 });
 
 /**

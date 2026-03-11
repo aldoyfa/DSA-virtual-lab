@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './contexts/AuthContext';
+import { VisualizerProvider } from './contexts/VisualizerContext';
 import Auth from './components/Auth/Auth';
 import TopicSelector from './components/TopicSelector/TopicSelector';
 import Toolbar from './components/Toolbar/Toolbar';
@@ -11,16 +12,11 @@ function App() {
   const { isAuthenticated, loading, login, register } = useAuth();
   const [selectedTopic, setSelectedTopic] = useState(null);
 
-  // Reset topic when authentication state changes
   useEffect(() => {
     if (!isAuthenticated) {
       setSelectedTopic(null);
     }
   }, [isAuthenticated]);
-
-  const handleTopicSelect = (topic) => {
-    setSelectedTopic(topic);
-  };
 
   if (loading) {
     return (
@@ -34,22 +30,21 @@ function App() {
     return <Auth onLogin={login} onRegister={register} />;
   }
 
-  // Always show topic selector first if no topic selected
   if (!selectedTopic) {
-    return <TopicSelector onSelectTopic={handleTopicSelect} />;
+    return <TopicSelector onSelectTopic={setSelectedTopic} />;
   }
 
-  // Render based on selected topic
   if (selectedTopic === 'alphabeta') {
     return <AlphaBeta onChangeTopic={() => setSelectedTopic(null)} />;
   }
 
-  // Default to sorting visualizer
   return (
     <div className="app">
       <div className="app__content">
-        <Toolbar />
-        <Visualizer />
+        <VisualizerProvider>
+          <Toolbar onChangeTopic={() => setSelectedTopic(null)} />
+          <Visualizer />
+        </VisualizerProvider>
       </div>
     </div>
   );

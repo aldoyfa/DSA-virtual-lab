@@ -1,11 +1,6 @@
-import React from 'react';
 import './TopicSelector.css';
 
 const TopicSelector = ({ onSelectTopic }) => {
-  const handleTopicSelect = (topic) => {
-    onSelectTopic(topic);
-  };
-
   return (
     <div className="topic-selector-overlay">
       <div className="topic-card">
@@ -18,7 +13,7 @@ const TopicSelector = ({ onSelectTopic }) => {
           <div className="tiles">
             <button
               className="tile blue"
-              onClick={() => handleTopicSelect('sorting')}
+              onClick={() => onSelectTopic('sorting')}
               aria-label="Sorting Visualizer"
             >
               <div className="bar" aria-hidden="true"></div>
@@ -28,7 +23,7 @@ const TopicSelector = ({ onSelectTopic }) => {
 
             <button
               className="tile coral"
-              onClick={() => handleTopicSelect('alphabeta')}
+              onClick={() => onSelectTopic('alphabeta')}
               aria-label="Alpha Beta Pruning"
             >
               <div className="bar" aria-hidden="true"></div>

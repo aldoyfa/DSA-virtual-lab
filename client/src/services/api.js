@@ -8,8 +8,7 @@ class ApiService {
 
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`;
-    const token = localStorage.getItem('token');
-    
+
     const config = {
       ...options,
       headers: {
@@ -18,11 +17,6 @@ class ApiService {
       },
       credentials: 'include',
     };
-
-    // Add token to Authorization header if available
-    if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
 
     try {
       const response = await fetch(url, config);
@@ -39,18 +33,16 @@ class ApiService {
     }
   }
 
-  // Authentication
   async register(email, username, password) {
     const data = await this.request('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, username, password }),
     });
-    
-    if (data.success && data.data.token) {
-      localStorage.setItem('token', data.data.token);
+
+    if (data.success) {
       localStorage.setItem('user', JSON.stringify(data.data.user));
     }
-    
+
     return data;
   }
 
@@ -59,12 +51,11 @@ class ApiService {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    
-    if (data.success && data.data.token) {
-      localStorage.setItem('token', data.data.token);
+
+    if (data.success) {
       localStorage.setItem('user', JSON.stringify(data.data.user));
     }
-    
+
     return data;
   }
 
@@ -72,7 +63,6 @@ class ApiService {
     await this.request('/api/auth/logout', {
       method: 'POST',
     });
-    localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
 

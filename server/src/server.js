@@ -12,7 +12,7 @@ dotenv.config();
 
 // Initialize Express app
 const app = express();
-const PORT = process.env.BACKEND_PORT || 15011;
+const PORT = process.env.PORT || 15011;
 
 // CORS configuration
 const corsOptions = {
@@ -33,38 +33,6 @@ app.get('/health', (req, res) => {
     success: true,
     message: 'DSA Virtual Lab API is running',
     timestamp: new Date().toISOString(),
-  });
-});
-
-// API routes
-app.get('/api', (req, res) => {
-  res.json({
-    success: true,
-    message: 'DSA Virtual Lab API',
-    version: '1.0.0',
-    endpoints: {
-      auth: {
-        register: 'POST /api/auth/register',
-        login: 'POST /api/auth/login',
-        logout: 'POST /api/auth/logout',
-        me: 'GET /api/auth/me',
-        update: 'PUT /api/auth/update',
-      },
-      states: {
-        list: 'GET /api/states',
-        get: 'GET /api/states/:id',
-        create: 'POST /api/states',
-        update: 'PUT /api/states/:id',
-        delete: 'DELETE /api/states/:id',
-        latest: 'GET /api/states/user/latest',
-      },
-      alphabeta: {
-        scores: 'GET /api/alphabeta/scores',
-        saveScore: 'POST /api/alphabeta/scores',
-        getScore: 'GET /api/alphabeta/scores/:id',
-        stats: 'GET /api/alphabeta/stats',
-      },
-    },
   });
 });
 

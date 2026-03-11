@@ -1,9 +1,8 @@
 import express from 'express';
-import { PrismaClient } from '@prisma/client';
+import prisma from '../lib/prisma.js';
 import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 /**
  * @route   GET /api/states
@@ -74,34 +73,33 @@ router.get('/:id', authenticate, async (req, res, next) => {
  */
 router.post('/', authenticate, async (req, res, next) => {
   try {
-    const { name, arrayData, arraySize, selectedAlgorithm, speed } = req.body;
+    const { name, arrayData, arraySize, selectedAlgorithm, algorithm, speed } = req.body;
+    const algoValue = selectedAlgorithm || algorithm || null;
 
-    // Validation
-    if (!arrayData || !Array.isArray(arrayData)) {
+    if (!arrayData || !Array.isArray(arrayData) || arrayData.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'arrayData is required and must be an array',
+        message: 'arrayData is required and must be a non-empty array',
       });
     }
 
-    if (arrayData.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'arrayData cannot be empty',
-      });
-    }
-
-    // Create state
-    const state = await prisma.userState.create({
-      data: {
-        userId: req.user.id,
-        name: name || 'Untitled Session',
-        arrayData,
-        arraySize: arraySize || arrayData.length,
-        selectedAlgorithm: selectedAlgorithm || null,
-        speed: speed || 100,
-      },
+    const existing = await prisma.userState.findFirst({
+      where: { userId: req.user.id },
+      orderBy: { updatedAt: 'desc' },
+      select: { id: true },
     });
+
+    const data = {
+      name: name || 'Untitled Session',
+      arrayData,
+      arraySize: arraySize || arrayData.length,
+      selectedAlgorithm: algoValue,
+      speed: speed || 100,
+    };
+
+    const state = existing
+      ? await prisma.userState.update({ where: { id: existing.id }, data })
+      : await prisma.userState.create({ data: { userId: req.user.id, ...data } });
 
     res.status(201).json({
       success: true,

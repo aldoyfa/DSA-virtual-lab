@@ -1,13 +1,10 @@
 import { useMemo } from 'react'
-import { useSelector } from 'react-redux'
+import { useVisualizer } from '../../contexts/VisualizerContext'
 import './Visualizer.css'
 
 const Visualizer = () => {
-  const array = useSelector(state => state.array.data)
-  const currentComparisons = useSelector(state => state.visualization.currentComparisons)
-  const currentSwappers = useSelector(state => state.visualization.currentSwappers)
-  const currentSorted = useSelector(state => state.visualization.currentSorted)
-  const pivot = useSelector(state => state.visualization.pivot)
+  const { state } = useVisualizer()
+  const { array, currentComparisons, currentSwappers, currentSorted, pivot } = state
 
   const containerWidth = useMemo(() => {
     if (typeof window !== 'undefined') {
